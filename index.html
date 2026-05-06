@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FUNL — Know the line before you go</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0f0f0f;
+    --white: #fafaf8;
+    --gray-100: #f2f2ef;
+    --gray-200: #e4e4e0;
+    --gray-400: #a8a8a2;
+    --gray-600: #6b6b65;
+    --accent: #1a1a1a;
+    --green: #2d6a4f;
+    --green-light: #e8f5ee;
+    --amber: #92400e;
+    --amber-light: #fef3c7;
+    --red: #991b1b;
+    --red-light: #fee2e2;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2.5rem;
+    background: rgba(250,250,248,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+    color: var(--black);
+    text-decoration: none;
+  }
+
+  .nav-cta {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--black);
+    padding: 0.5rem 1.25rem;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.75; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 30%, #f0ede6 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  .hero-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.2s;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gray-600);
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 300;
+    color: var(--gray-600);
+    max-width: 480px;
+    margin: 0 auto 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.35s;
+  }
+
+  /* WAITLIST FORM */
+  .waitlist-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.5s;
+  }
+
+  .waitlist-form input {
+    flex: 1;
+    padding: 0.75rem 1.1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    background: var(--white);
+    color: var(--black);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .waitlist-form input::placeholder { color: var(--gray-400); }
+  .waitlist-form input:focus { border-color: var(--gray-600); }
+
+  .waitlist-form button {
+    padding: 0.75rem 1.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--black);
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .waitlist-form button:hover { opacity: 0.75; }
+
+  .form-note {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    margin-top: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.65s;
+  }
+
+  .success-msg {
+    display: none;
+    font-size: 0.9rem;
+    color: var(--green);
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  /* SCROLL HINT */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.9s;
+  }
+  .scroll-hint span { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); }
+  .scroll-line {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--gray-400), transparent);
+    animation: scrollPulse 1.8s ease-in-out infinite;
+  }
+
+  /* HOW IT WORKS */
+  .section {
+    padding: 6rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 3rem;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .how-cell {
+    padding: 2rem 1.75rem;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    transition: background 0.2s;
+  }
+  .how-cell:last-child { border-right: none; }
+  .how-cell:hover { background: var(--gray-100); }
+
+  .how-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem;
+    color: var(--gray-200);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .how-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+  }
+
+  .how-body {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+
+  /* LIVE PREVIEW STRIP */
+  .preview-section {
+    background: var(--gray-100);
+    border-top: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 5rem 2rem;
+  }
+
+  .preview-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .preview-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 3rem;
+  }
+
+  .preview-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.15;
+    color: var(--black);
+    max-width: 540px;
+    margin-bottom: 3rem;
+  }
+
+  .bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 480px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .bar-info { display: flex; flex-direction: column; gap: 2px; }
+  .bar-row-name { font-size: 0.95rem; font-weight: 500; color: var(--black); }
+  .bar-row-meta { font-size: 0.75rem; color: var(--gray-400); }
+
+  .status-pill {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+  .s-short { background: var(--green-light); color: var(--green); }
+  .s-medium { background: var(--amber-light); color: var(--amber); }
+  .s-long { background: var(--red-light); color: var(--red); }
+  .s-none { background: var(--gray-100); color: var(--gray-400); border: 1px solid var(--gray-200); }
+
+  /* FOR BARS */
+  .bars-section {
+    padding: 6rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .bars-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--black);
+  }
+
+  .bars-body {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--gray-600);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .feature-list li {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .feature-list li::before {
+    content: '—';
+    color: var(--gray-400);
+    flex-shrink: 0;
+  }
+
+  .dashboard-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .dash-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 1.25rem; }
+
+  .dash-stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .dash-stat {
+    background: var(--gray-100);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+  }
+  .dash-stat-val { font-size: 1.4rem; font-weight: 500; color: var(--black); }
+  .dash-stat-label { font-size: 0.7rem; color: var(--gray-400); margin-top: 2px; }
+
+  .promo-block {
+    background: #0f0f0f;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .promo-text { font-size: 0.8rem; color: #fafaf8; }
+  .promo-btn-sm {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #0f0f0f;
+    background: #fafaf8;
+    border: none;
+    border-radius: 100px;
+    padding: 4px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* BOTTOM CTA */
+  .bottom-cta {
+    text-align: center;
+    padding: 7rem 2rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .bottom-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.1;
+    color: var(--black);
+    margin-bottom: 1rem;
+  }
+
+  .bottom-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--gray-600);
+    margin-bottom: 2.5rem;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 2.5rem;
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  footer span { font-size: 0.8rem; color: var(--gray-400); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 680px) {
+    nav { padding: 1rem 1.25rem; }
+    .how-grid { grid-template-columns: 1fr; }
+    .how-cell { border-right: none; border-bottom: 1px solid var(--gray-200); }
+    .how-cell:last-child { border-bottom: none; }
+    .two-col { grid-template-columns: 1fr; gap: 2.5rem; }
+    .waitlist-form { flex-direction: column; }
+    .waitlist-form input, .waitlist-form button { border-radius: 10px; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="wordmark">FUNL</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Coming to JMU · Harrisonburg, VA</p>
+  <h1 class="hero-headline">Know the line<br><em>before you go.</em></h1>
+  <p class="hero-sub">Real-time line lengths at every bar downtown — crowdsourced by JMU students, for JMU students.</p>
+
+  <div class="waitlist-form" id="waitlist">
+    <input type="email" id="email-input" placeholder="your@email.com" />
+    <button onclick="handleSignup()">Join waitlist</button>
+  </div>
+  <p class="form-note">Be the first to know when FUNL launches at JMU.</p>
+  <p class="success-msg" id="success-msg">You're on the list. We'll be in touch soon.</p>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <p class="section-label">How it works</p>
+  <div class="how-grid">
+    <div class="how-cell">
+      <div class="how-num">01</div>
+      <div class="how-title">Open FUNL</div>
+      <div class="how-body">See live line lengths at every bar downtown, updated in real time by students already out.</div>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">02</div>
+      <div class="how-title">Pick your spot</div>
+      <div class="how-body">No more walking around guessing. Head straight to the bar with the shortest line.</div>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">03</div>
+      <div class="how-title">Pay it forward</div>
+      <div class="how-body">Tap once to report the line you're in. Takes five seconds. Earns you points on the leaderboard.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE PREVIEW -->
+<div class="preview-section">
+  <div class="preview-inner">
+    <p class="preview-label">Live view</p>
+    <h2 class="preview-headline">See what's happening downtown, right now.</h2>
+    <div class="bar-list">
+      <div class="bar-row">
+        <div class="bar-info">
+          <span class="bar-row-name">Ruby's Lounge</span>
+          <span class="bar-row-meta">Updated 2 min ago · 6 reports</span>
+        </div>
+        <span class="status-pill s-long">Long</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-info">
+          <span class="bar-row-name">Urgies</span>
+          <span class="bar-row-meta">Updated 1 min ago · 8 reports</span>
+        </div>
+        <span class="status-pill s-medium">Medium</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-info">
+          <span class="bar-row-name">Billy Jack's</span>
+          <span class="bar-row-meta">Updated just now · 4 reports</span>
+        </div>
+        <span class="status-pill s-short">Short</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-info">
+          <span class="bar-row-name">Golden Pony</span>
+          <span class="bar-row-meta">Updated 4 min ago · 3 reports</span>
+        </div>
+        <span class="status-pill s-medium">Medium</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-info">
+          <span class="bar-row-name">Finnigans</span>
+          <span class="bar-row-meta">No recent reports</span>
+        </div>
+        <span class="status-pill s-none">Unknown</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BOTTOM CTA -->
+<section class="bottom-cta">
+  <h2 class="bottom-headline">Stop guessing.<br>Start funneling.</h2>
+  <p class="bottom-sub">Join the waitlist and be first in line when FUNL launches.</p>
+  <div class="waitlist-form" style="margin: 0 auto;">
+    <input type="email" id="email-input-2" placeholder="your@email.com" />
+    <button onclick="handleSignup2()">Join waitlist</button>
+  </div>
+  <p class="form-note" style="margin-top: 0.75rem;">No spam. Just a heads-up when we launch.</p>
+  <p class="success-msg" id="success-msg-2" style="display:none;">You're on the list. See you out there.</p>
+</section>
+
+<footer>
+  <span class="wordmark" style="font-family:'DM Serif Display',serif; font-size:1.1rem;">FUNL</span>
+  <span>Made for JMU · Harrisonburg, VA</span>
+</footer>
+
+<script>
+  const FORMSPREE_URL = 'https://formspree.io/f/mnjwzqze';
+
+  async function submitToFormspree(email) {
+    const res = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    return res.ok;
+  }
+
+  async function handleSignup() {
+    const input = document.getElementById('email-input');
+    const val = input.value.trim();
+    if (!val || !val.includes('@')) { input.focus(); return; }
+    const ok = await submitToFormspree(val);
+    if (ok) {
+      document.querySelector('.waitlist-form').style.display = 'none';
+      document.querySelector('.form-note').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    }
+  }
+
+  async function handleSignup2() {
+    const input = document.getElementById('email-input-2');
+    const val = input.value.trim();
+    if (!val || !val.includes('@')) { input.focus(); return; }
+    const ok = await submitToFormspree(val);
+    if (ok) {
+      input.closest('.waitlist-form').style.display = 'none';
+      document.getElementById('success-msg-2').style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>
